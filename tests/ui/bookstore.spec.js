@@ -12,24 +12,23 @@ test("DemoQA Book Store UI Assignment", async ({ page }) => {
 
   // Validate username & logout button
   await expect(page.locator("#userName-value")).toHaveText("sud@123");
-  await expect(page.locator("#submit")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Log out" })).toBeVisible();
 
   // Navigate to Book Store
-  await page.click("text=Book Store");
+  await page.waitForTimeout(5000);
+  await page.getByText('Book Store', { exact: true }).click();
 
   // Search book
   await page.fill("#searchBox", "Learning JavaScript Design Patterns");
 
-  // Validate search result
-  const bookRow = page.locator(".rt-tr-group");
-  await expect(bookRow).toContainText("Learning JavaScript Design Patterns");
+  // Validate search result with book title
+  const bookTitle = await page.locator(':text-is("Learning JavaScript Design Patterns")').textContent();
+  expect(bookTitle).toBe("Learning JavaScript Design Patterns");
 
   // Capture book details
-  const title = await page
-    .locator('a[href*="Learning-JavaScript-Design-Patterns"]')
-    .textContent();
-  const author = await bookRow.locator(".rt-td").nth(2).textContent();
-  const publisher = await bookRow.locator(".rt-td").nth(3).textContent();
+  const title = bookTitle;
+  const author = await page.locator(':text-is("Addy Osmani")').textContent();
+  const publisher = await page.locator("(//div[@class='rt-td'])[4]").textContent();
 
   // Write details to file
   const data = `
